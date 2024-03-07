@@ -4,39 +4,188 @@ using UnityEngine;
 
 public class CharController : MonoBehaviour
 {
-    public float speed = 5f;
-    public float jumpForce = 10f;
-    private bool isGrounded;
+    private float horizontal;
+    public float speed = 3f;
+    public float jumpPower = 4f;
+    private bool isFacingRight = true;
 
-    private Rigidbody2D rb2d;
+    private bool isWallSliding;
+    private float wallSlidingSpeed = 2f;
 
-    void Start()
+    private bool isWallJumping;
+    private float wallJumpDirection;
+    private float wallJumpTime = 0.2f;
+    private float wallJumpCounter;
+    private float wallJumpDuration = 0.4f;
+    public Vector2 wallJumpPower = new Vector2(2f, 4f);
+
+    private bool canDash = true;
+    private bool isDashing;
+    public float dashPower = 15f;
+    public float upDashPower = 4f;
+    public float dashTime = 0.2f;
+    public float dashCooldown = 1f;
+
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask wallLayer;
+
+    private void Update()
     {
-        // get the rigidbody
-        rb2d = GetComponent<Rigidbody2D>();
-    }
-
-    void Update()
-    {
-        // Horizontal Movement //
-        float moveX = Input.GetAxis("Horizontal");
-        rb2d.velocity = new Vector2(moveX * speed, rb2d.velocity.y);
-
-        // Jumping if on the ground //
-        // check if player is grounded and if the jump button is down
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (isDashing)
         {
-            rb2d.velocity = new Vector2(rb2d.velocity.x, jumpForce);
-            isGrounded = false; // set jump to false so no air jump
+            return;
+        }
+
+        horizontal = Input.GetAxisRaw("Horizontal");
+
+        if (Input.GetButtonDown("Jump") && OnGrounded())
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpPower);
+        }
+
+        if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
+        {
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+                StartCoroutine(UpDash());
+            }
+            else
+            {
+                StartCoroutine(Dash());
+            }
+        }
+
+        WallSlide();
+        WallJump();
+
+        if (!isWallJumping)
+        {
+            Flip();
         }
     }
 
-    void OnCollisionEnter2D(Collision2D other)
+    private void FixedUpdate()
     {
-        // Checks if the collider player is touching is floor
-        if (other.gameObject.CompareTag("Floor"))
+        if (isDashing)
         {
-            isGrounded = true;
+            return;
         }
+
+        if (!isWallJumping)
+        {
+            rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        }
+    }
+
+    private bool OnGrounded()
+    {
+        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    }
+
+    private bool OnWall()
+    {
+        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, wallLayer);
+    }
+
+    private void WallSlide()
+    {
+        if (OnWall() && !OnGrounded() && horizontal != 0f)
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlidingSpeed, float.MaxValue));
+        }
+        else
+        {
+            isWallSliding = false;
+        }
+    }
+
+    private void WallJump()
+    {
+        if (isWallSliding)
+        {
+            isWallJumping = false;
+            wallJumpDirection = -transform.localScale.x;
+            wallJumpCounter = wallJumpTime;
+
+            CancelInvoke(nameof(StopWallJumping));
+        }
+        else
+        {
+            wallJumpCounter -= Time.deltaTime;
+        }
+
+        if (Input.GetButtonDown("Jump") && wallJumpCounter > 0f)
+        {
+            isWallJumping = true;
+            rb.velocity = new Vector2(wallJumpDirection * wallJumpPower.x, wallJumpPower.y);
+            wallJumpCounter = 0f;
+
+            if (transform.localScale.x != wallJumpDirection)
+            {
+                isFacingRight = !isFacingRight;
+                Vector3 localScale = transform.localScale;
+                localScale.x *= -1f;
+                transform.localScale = localScale;
+            }
+
+            Invoke(nameof(StopWallJumping), wallJumpDuration);
+        }
+    }
+
+    private void StopWallJumping()
+    {
+        isWallJumping = false;
+    }
+
+    private void Flip()
+    {
+        if (isFacingRight && horizontal < 0f || !isFacingRight && horizontal > 0f)
+        {
+            isFacingRight = !isFacingRight;
+            Vector3 localScale = transform.localScale;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
+    }
+
+    private IEnumerator Dash()
+    {
+        canDash = false;
+        isDashing = true;
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        rb.velocity = new Vector2(transform.localScale.x * dashPower, 0f);
+        //tr.emitting = true;
+        yield return new WaitForSeconds(dashTime);
+        //tr.emitting = false;
+        rb.gravityScale = originalGravity;
+        isDashing = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
+    private IEnumerator UpDash()
+    {
+        canDash = false;
+        isDashing = true;
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        rb.velocity = new Vector2(transform.localScale.x * dashPower, upDashPower);
+        //tr.emitting = true;
+        yield return new WaitForSeconds(dashTime);
+        //tr.emitting = false;
+        rb.gravityScale = originalGravity;
+        isDashing = false;
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
     }
 }
