@@ -31,6 +31,12 @@ public class CharController : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform wallCheck;
     [SerializeField] private LayerMask wallLayer;
+    Animator animator;
+
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     private void Update()
     {
@@ -44,11 +50,13 @@ public class CharController : MonoBehaviour
         if (Input.GetButtonDown("Jump") && OnGrounded())
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpPower);
+            //animator.SetBool("jumpState", !OnGrounded());
         }
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
         {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+            //animator.SetBool("jumpState", !OnGrounded());
         }
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
@@ -74,11 +82,12 @@ public class CharController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        animator.SetFloat("xVelocity", Mathf.Abs(rb.velocity.x));
+        animator.SetFloat("yVelocity", rb.velocity.y);
         if (isDashing)
         {
             return;
         }
-
         if (!isWallJumping)
         {
             rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
@@ -87,7 +96,10 @@ public class CharController : MonoBehaviour
 
     private bool OnGrounded()
     {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        bool temp;
+        temp = Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+        animator.SetBool("jumpState", !temp);
+        return temp;
     }
 
     private bool OnWall()
