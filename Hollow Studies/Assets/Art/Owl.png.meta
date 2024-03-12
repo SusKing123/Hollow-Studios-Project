@@ -178,6 +178,42 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -716,7 +752,32 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Owl_0: -1788626132936788117
+      Owl_1: -6547531000066942689
+      Owl_10: 556069731842956920
+      Owl_11: 453216948374987978
+      Owl_12: 4005441077249659871
+      Owl_13: 1375133925373244906
+      Owl_14: 7742875264696265243
+      Owl_15: 8274560042344113122
+      Owl_16: 8510347236831964937
+      Owl_17: -1308883269607040819
+      Owl_18: -1028299195808432645
+      Owl_19: 927975602201036598
+      Owl_2: 1696435273948115360
+      Owl_20: -347548704362070374
+      Owl_21: 5197394031096881412
+      Owl_22: -6091841678222158933
+      Owl_23: -1526337810661366293
+      Owl_24: 7596307909391333324
+      Owl_3: -2957158296051965490
+      Owl_4: -5453227911411083704
+      Owl_5: 5943547782214203409
+      Owl_6: -4973822385572961100
+      Owl_7: 2224797283100166942
+      Owl_8: 7406778163035628280
+      Owl_9: -1245350860645931380
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
